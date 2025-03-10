@@ -28,7 +28,7 @@ def implots(imgs, cal, row, tags=None):
     resized_imgs = [cv2.resize(img, (max_w, max_h)) for img in imgs]
 
     # Load the fallback image
-    none_img_path = Path(__file__).parents[0] / 'assets/hello_opencv.png'
+    none_img_path = Path(__file__).parents[1] / 'assets/hello_opencv.png'
     none_img = cv2.imread(str(none_img_path)) if none_img_path.exists() else np.zeros((max_h, max_w, 3), dtype=np.uint8)
 
     # Fill missing images with placeholders
@@ -44,7 +44,7 @@ def implots(imgs, cal, row, tags=None):
     # Tag settings for bigger size
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = max_h * 0.65 / 480  # Increased font size
-    font_thickness = round(max_h * 2 / 480)  # Thicker text
+    font_thickness = round(max_h * 1 / 480)  # Thicker text
     text_color = (0, 0, 0)  # White text
     bg_color = (255, 255, 255)  # Black background for the tag
 

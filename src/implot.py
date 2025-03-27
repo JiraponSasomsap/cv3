@@ -37,7 +37,12 @@ def implots(imgs, cal, row, tags=None):
 
     # Default tags if none provided
     if tags is None:
-        tags = [f"Image {i+1}" for i in range(len(resized_imgs))]
+        grid_rows = [
+            np.hstack(resized_imgs[i * cal:(i + 1) * cal])
+            for i in range(row)
+        ]
+        concatenated = np.vstack(grid_rows)
+        return concatenated
     elif len(tags) < len(resized_imgs):
         tags.extend(["Unknown"] * (len(resized_imgs) - len(tags)))  # Fill missing tags
 

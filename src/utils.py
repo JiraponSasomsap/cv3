@@ -170,3 +170,9 @@ class Implot:
                                    text_thickness)
                 label_text_coords = label_text_coords+[0, text_height+(baseline*2)]
         return plot
+
+import random
+
+def color_by_id(obj_id):
+    random.seed(obj_id)  # Seed with the ID for consistency
+    return tuple(random.randint(0, 255) for _ in range(3))

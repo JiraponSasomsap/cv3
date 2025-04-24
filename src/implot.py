@@ -1,8 +1,10 @@
 import cv2
 import numpy as np
 from pathlib import Path
+from norfair.drawing.drawer import Drawer
+from .utils import color_by_id
 
-def implots(imgs, cal, row, tags=None):
+def plot_image_grid(imgs, cal, row, tags=None):
     """
     Arranges multiple images in a grid format (rows and columns) with large tags on top.
 
@@ -80,3 +82,48 @@ def implots(imgs, cal, row, tags=None):
     concatenated = np.vstack(grid_rows)
 
     return concatenated
+
+def draw_boxes(image, 
+               boxes, 
+               ids=[], 
+               labels=[], 
+               thickness=None):
+    plot = image.copy()
+
+    if thickness is None:
+        thickness = int(max(plot.shape) / 500)
+
+    # Default color if ids not provided
+    default_color = (255,255,0)
+
+    if ids and len(ids) == len(boxes):
+        colors = [color_by_id(i) for i in ids]
+    else:
+        colors = [default_color] * len(boxes)
+
+    for ibox, box in enumerate(boxes):
+        box = np.array(box, dtype=np.int32).reshape(2, 2)
+        color = colors[ibox]
+
+        text_anchor = (
+            box[0, 0] - thickness // 2,
+            box[0, 1] - thickness // 2 - 1,
+        )
+
+        # Drawing rectangle
+        Drawer.rectangle(frame=plot, points=box, color=color, thickness=thickness)
+
+        text = ''
+
+        # Drawing id if available
+        if ids and ibox < len(ids):
+            text += f'{ids[ibox]}'
+
+        # Drawing label if available
+        if labels and ibox < len(labels):
+            text += f' {labels[ibox]}'
+        
+        if text != '':
+            Drawer.text(frame=plot, text=text, position=text_anchor, thickness=thickness, color=color)
+            
+    return plot

@@ -87,11 +87,14 @@ def draw_boxes(image,
                boxes, 
                ids=[], 
                labels=[], 
-               thickness=None):
+               size=None,
+               thickness=None,):
     plot = image.copy()
 
     if thickness is None:
         thickness = int(max(plot.shape) / 500)
+    if size is None:
+        size = min(max(max(plot.shape) / 4000, 0.5), 1.5)
 
     # Default color if ids not provided
     default_color = (255,255,0)
@@ -124,6 +127,11 @@ def draw_boxes(image,
             text += f' {labels[ibox]}'
         
         if text != '':
+            (text_width, text_height), baseline = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, size, thickness,)
+            text_anchor = (text_anchor[0], 
+                          text_anchor[1] + text_height 
+                          if text_anchor[1] - text_height < 0
+                          else text_anchor[1])
             Drawer.text(frame=plot, text=text, position=text_anchor, thickness=thickness, color=color)
             
     return plot

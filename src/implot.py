@@ -87,6 +87,7 @@ def draw_boxes(image,
                boxes, 
                ids=[], 
                labels=[], 
+               default_color=(0,255,0),
                size=None,
                thickness=None,):
     plot = image.copy()
@@ -97,10 +98,10 @@ def draw_boxes(image,
         size = min(max(max(plot.shape) / 4000, 0.5), 1.5)
 
     # Default color if ids not provided
-    default_color = (255,255,0)
+    default_color = default_color
 
-    if ids and len(ids) == len(boxes):
-        colors = [color_by_id(i) for i in ids]
+    if len(ids) == len(boxes):
+        colors = [color_by_id(int(i)) for i in ids]
     else:
         colors = [default_color] * len(boxes)
 
@@ -119,7 +120,7 @@ def draw_boxes(image,
         text = ''
 
         # Drawing id if available
-        if ids and ibox < len(ids):
+        if ibox < len(ids):
             text += f'{ids[ibox]}'
 
         # Drawing label if available

@@ -1,4 +1,5 @@
 from .src.utils import color_by_id
+from pathlib import Path
 
 def imcrops(image, boxes):
     """
@@ -17,3 +18,7 @@ def imcrops(image, boxes):
         crop = image[y1:y2, x1:x2]
         crops.append(crop)
     return crops
+
+def version():
+    v = Path(__file__).parent / "VERSION"
+    return v.read_text().strip()

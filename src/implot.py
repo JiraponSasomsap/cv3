@@ -136,3 +136,74 @@ def draw_boxes(image,
             Drawer.text(frame=plot, text=text, position=text_anchor, thickness=thickness, color=color)
             
     return plot
+
+def plot_image_grid_optimize(imgs, cal, row):
+    """
+    Combine a list of images into a grid with cal columns and row rows.
+    If images have different sizes, resize them to match the smallest dimensions.
+    If there are fewer images than needed, pad with black images.
+
+    Args:
+        imgs: List of images as numpy arrays
+        cal: Number of columns in the output grid
+        row: Number of rows in the output grid
+
+    Returns:
+        Combined image as a numpy array
+    """
+    if not imgs:
+        raise ValueError("Image list cannot be empty")
+
+    # Find the smallest height and width among all images
+    min_h = min(img.shape[0] for img in imgs)
+    min_w = min(img.shape[1] for img in imgs)
+
+    # Determine number of channels (handle both grayscale and color images)
+    channels = 1
+    for img in imgs:
+        if len(img.shape) == 3:
+            channels = max(channels, img.shape[2])
+
+    # Resize all images to the smallest dimensions
+    resized_images = []
+    for img in imgs:
+        if len(img.shape) == 2:  # Grayscale image
+            img_resized = cv2.resize(img, (min_w, min_h), interpolation=cv2.INTER_AREA)
+            if channels > 1:
+                img_resized = np.stack([img_resized]*channels, axis=-1)
+        else:  # Color image
+            img_resized = cv2.resize(img, (min_w, min_h), interpolation=cv2.INTER_AREA)
+            if img_resized.shape[2] < channels:  # Handle case where some images have fewer channels
+                img_resized = np.pad(img_resized, ((0,0),(0,0),(0,channels-img_resized.shape[2])), 
+                                   mode='constant', constant_values=0)
+        resized_images.append(img_resized)
+
+    # Create a black image for padding if needed
+    if channels == 1:
+        black_image = np.zeros((min_h, min_w), dtype=resized_images[0].dtype)
+    else:
+        black_image = np.zeros((min_h, min_w, channels), dtype=resized_images[0].dtype)
+
+    # Calculate how many images we need in total
+    total_images = cal * row
+    current_images = len(resized_images)
+
+    # Pad the image list with black images if necessary
+    if current_images < total_images:
+        resized_images = resized_images + [black_image] * (total_images - current_images)
+
+    # Combine images into rows first
+    rows = []
+    for row in range(row):
+        row_start = row * cal
+        row_end = row_start + cal
+        row_images = resized_images[row_start:row_end]
+
+        # Combine images horizontally
+        row_combined = np.hstack(row_images)
+        rows.append(row_combined)
+
+    # Combine rows vertically
+    combined = np.vstack(rows)
+
+    return combined

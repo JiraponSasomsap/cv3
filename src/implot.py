@@ -4,20 +4,20 @@ from pathlib import Path
 from norfair.drawing.drawer import Drawer
 from .utils import color_by_id
 
-def plot_image_grid(imgs, cal, row, tags=None):
+def plot_image_grid(imgs, col, row, tags=None):
     """
     Arranges multiple images in a grid format (rows and columns) with large tags on top.
 
     Args:
         imgs (list of numpy arrays): List of images to arrange.
-        cal (int): Number of columns in the grid.
+        col (int): Number of columns in the grid.
         row (int): Number of rows in the grid.
         tags (list of str, optional): List of tags for each image.
 
     Returns:
         numpy array: Concatenated grid image with larger tags.
     """
-    assert len(imgs) <= cal * row, "Not enough rows and columns for all images."
+    assert len(imgs) <= col * row, "Not enough rows and columns for all images."
 
     # Convert grayscale images to 3-channel BGR
     imgs = [cv2.cvtColor(img, cv2.COLOR_GRAY2BGR) if len(img.shape) == 2 else img for img in imgs]
@@ -34,13 +34,13 @@ def plot_image_grid(imgs, cal, row, tags=None):
     none_img = cv2.imread(str(none_img_path)) if none_img_path.exists() else np.zeros((max_h, max_w, 3), dtype=np.uint8)
 
     # Fill missing images with placeholders
-    while len(resized_imgs) < cal * row:
+    while len(resized_imgs) < col * row:
         resized_imgs.append(cv2.resize(none_img, (max_w, max_h)))
 
     # Default tags if none provided
     if tags is None:
         grid_rows = [
-            np.hstack(resized_imgs[i * cal:(i + 1) * cal])
+            np.hstack(resized_imgs[i * col:(i + 1) * col])
             for i in range(row)
         ]
         concatenated = np.vstack(grid_rows)
@@ -74,7 +74,7 @@ def plot_image_grid(imgs, cal, row, tags=None):
 
     # Split images into rows
     grid_rows = [
-        np.hstack(labeled_imgs[i * cal:(i + 1) * cal])
+        np.hstack(labeled_imgs[i * col:(i + 1) * col])
         for i in range(row)
     ]
 
@@ -137,15 +137,15 @@ def draw_boxes(image,
             
     return plot
 
-def plot_image_grid_optimize(imgs, cal, row):
+def plot_image_grid_optimize(imgs, col, row):
     """
-    Combine a list of images into a grid with cal columns and row rows.
+    Combine a list of images into a grid with col columns and row rows.
     If images have different sizes, resize them to match the smallest dimensions.
     If there are fewer images than needed, pad with black images.
 
     Args:
         imgs: List of images as numpy arrays
-        cal: Number of columns in the output grid
+        col: Number of columns in the output grid
         row: Number of rows in the output grid
 
     Returns:
@@ -185,7 +185,7 @@ def plot_image_grid_optimize(imgs, cal, row):
         black_image = np.zeros((min_h, min_w, channels), dtype=resized_images[0].dtype)
 
     # Calculate how many images we need in total
-    total_images = cal * row
+    total_images = col * row
     current_images = len(resized_images)
 
     # Pad the image list with black images if necessary
@@ -195,8 +195,8 @@ def plot_image_grid_optimize(imgs, cal, row):
     # Combine images into rows first
     rows = []
     for row in range(row):
-        row_start = row * cal
-        row_end = row_start + cal
+        row_start = row * col
+        row_end = row_start + col
         row_images = resized_images[row_start:row_end]
 
         # Combine images horizontally

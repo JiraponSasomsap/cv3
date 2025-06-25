@@ -208,6 +208,34 @@ def plot_image_grid_optimize(imgs, col, row):
 
     return combined
 
+def draw_dashed_rectangle(img, pt1, pt2, color, thickness=1, dash_len=10, gap=5):
+    def draw_dashed_line(p1, p2):
+        p1 = np.array(p1, dtype=np.int32)
+        p2 = np.array(p2, dtype=np.int32)
+        vec = p2 - p1
+        dist = int(np.linalg.norm(vec))
+        if dist == 0:
+            return
+        vec = vec / dist  # unit direction vector
+
+        for i in range(0, dist, dash_len + gap):
+            start = p1 + vec * i
+            end = p1 + vec * min(i + dash_len, dist)
+            start = tuple(start.astype(int))
+            end = tuple(end.astype(int))
+            cv2.line(img, start, end, color, thickness)
+
+    x1, y1 = pt1
+    x2, y2 = pt2
+
+    # 4 ด้านของสี่เหลี่ยม
+    draw_dashed_line((x1, y1), (x2, y1))  # top
+    draw_dashed_line((x2, y1), (x2, y2))  # right
+    draw_dashed_line((x2, y2), (x1, y2))  # bottom
+    draw_dashed_line((x1, y2), (x1, y1))  # left
+
+    return img
+
 def info(img, frame_count, scale=None, thickness=None):
     plot = img.copy()
     text = f'Frame {frame_count}'

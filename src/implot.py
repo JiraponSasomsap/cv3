@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from pathlib import Path
-from norfair.drawing.drawer import Drawer
+from .drawing.Drawer import Drawer
 from .utils import color_by_id
 
 def plot_image_grid(imgs, col, row, tags=None):
@@ -207,3 +207,20 @@ def plot_image_grid_optimize(imgs, col, row):
     combined = np.vstack(rows)
 
     return combined
+
+def info(img, frame_count, scale=None, thickness=None):
+    plot = img.copy()
+    text = f'Frame {frame_count}'
+    font = cv2.FONT_HERSHEY_SIMPLEX
+
+    if scale is None:
+        scale = min(max(max(plot.shape) / 4000, 0.5), 1.5)
+    if thickness is None:
+        thickness = int(round(scale) + 1)
+    if thickness is None and scale is not None:
+        thickness = int(round(scale) + 1)
+
+    (text_width, text_height), baseline = cv2.getTextSize(text, font, scale, thickness)
+
+    plot = Drawer.text(plot, text, (0+baseline, text_height+baseline))
+    return plot
